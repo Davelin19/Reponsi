@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Comunidad - Repositorio SENA</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='img/logoSena.png') }}" rel="icon">
+  <link href="{{ url_for('static', filename='img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Raleway:wght@300;400;700&family=Nunito+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+
+  <!-- Main CSS Files -->
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/comments.css') }}" rel="stylesheet">
+</head>
+
+<body>
+  <!-- Header -->
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+      <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-xl-0">
+        <h1 class="sitename" style="color: #ffffff;">Repositorio SENA</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul class="gap-1">
+          <li><a href="{{ url_for('index') }}">Inicio</a></li>
+          <li><a href="{{ url_for('comunidad') }}">Comunidad</a></li>
+          {% if usuario['rol_id'] == 3 %}
+          <li><a href="{{ url_for('estadisticas') }}">Estadisticas</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('top_usuarios') }}">Top</a></li>
+          <li><a href="{{ url_for('reportes') }}">Reportes</a></li>
+          <li><a href="{{ url_for('equipo') }}">Equipo</a></li>
+          <li class="dropdown"><a href="#"><span>Gestion</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+            <ul>
+              <li><a href="{{ url_for('almacenamiento') }}">almacenamiento</a></li>
+              <li><a href="{{ url_for('consulta') }}">Consultar</a></li>
+            </ul>
+          </li>
+          <li><a href="{{ url_for('contacto') }}">Contacto</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <!--imagenes-->
+      <div class="profile-menu-wrapper position-relative">
+        <img src="{% if usuario and usuario['foto_perfil'] %}{{ usuario['foto_perfil'] }}{% else %}{{ url_for('static', filename='img/default-profile.png') }}{% endif %}"
+             alt="Perfil"
+             class="profile-img"
+             id="profileToggle"
+             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer;">
+
+        <div id="profileMenu" class="profile-menu d-none">
+          <ul class="list-unstyled m-0">
+            <li><a href="{{ url_for('perfil') }}">Mi perfil</a></li>
+            <li><a href="{{ url_for('configuracion') }}">Configuración</a></li>
+            <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+            {% if usuario['rol_id'] == 3 %}
+              <li><a href="{{ url_for('asignar') }}">Asignar roles</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      <!--fin imagenes-->
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="community section community-section">
+      <div class="container">
+
+        <div class="comments-section mt-5">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="section-title" data-aos="fade-up">
+                  <h2>Deja tu comentario</h2>
+                  <div><span>Comparte</span> <span class="description-title">tu experiencia</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- formulario comentarios -->
+            <div class="row">
+              <div class="col-lg-8 mx-auto">
+                <form id="comment-form" class="comment-form" onsubmit="event.preventDefault(); submitComment();">
+                  <div class="mb-4">
+                    <label for="comment-name" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="comment-name" placeholder="Tu nombre" required>
+                  </div>
+                  <div class="mb-4">
+                    <label for="comment-rating" class="form-label">Calificación</label>
+                    <select class="form-select" id="comment-rating" required>
+                      <option value="1">1 Estrella</option>
+                      <option value="2">2 Estrellas</option>
+                      <option value="3">3 Estrellas</option>
+                      <option value="4">4 Estrellas</option>
+                      <option value="5">5 Estrellas</option>
+                    </select>
+                  </div>
+                  <div class="mb-4">
+                    <label for="comment-text" class="form-label">Comentario</label>
+                    <textarea class="form-control" id="comment-text" rows="4" placeholder="Escribe tu comentario aquí..." required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Enviar Comentario</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- comentarios recientes -->
+<div class="row mt-5">
+  <div class="col-lg-12">
+    <div class="section-title" data-aos="fade-up">
+      <h2>Comentarios Recientes</h2>
+    </div>
+  </div>
+  <div class="col-lg-10 mx-auto">
+    <div id="comments-container" class="comments-container">
+
+      <!-- Ejemplo de tarjeta de comentario -->
+      <div class="comment-item card shadow-sm p-3 mb-3 border-0 text-center" style="background-color:#00304D; color:white;">
+        <div>
+          <p class="mb-1 text-warning">⭐⭐⭐⭐⭐</p>
+          <p class="fst-italic">"Excelente plataforma, muy fácil de usar."</p>
+          <p class="fw-bold">Juan Pérez</p>
+          <p class="text-muted small">11/07/2025</p>
+        </div>
+        <!-- Botón eliminar debajo -->
+        <div class="text-center mt-2">
+          <button class="btn btn-sm btn-outline-danger btn-delete">
+            <i class="bi bi-trash"></i> Eliminar
+          </button>
+        </div>
+      </div>
+
+      <!-- Aquí se cargarán más comentarios dinámicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    </section>
+  </main>
+
+  <footer id="footer" class="footer">
+    <div class="container footer-top">
+      <div class="row">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <h3>Repositorio SENA</h3>
+          <p>Plataforma digital para la gestión y consulta de recursos educativos del SENA.</p>
+        </div>
+
+        <div class="col-lg-4 col-md-6 footer-contact">
+          <h4>Contacto</h4>
+          <p>
+            Km. 7 Vía a La Paz en Valledupar<br>
+            Bogotá, Colombia<br>
+            <strong>Teléfono:</strong> +(57) 601 7366060<br>
+            <strong>Atencion al ciudadano:</strong> 018000 910 270<br>
+            <strong>Correo:</strong> info@sena.edu.co<br>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/aos/aos.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/glightbox/js/glightbox.min.js') }}"></script>
+
+  <!-- Main JS Files -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/comments.js') }}"></script>
+
+  <!-- Funciones comentarios -->
+  <script>
+    // Delegación para eliminar comentarios
+    document.getElementById("comments-container").addEventListener("click", function(e) {
+      if (e.target.closest(".btn-delete")) {
+        const comment = e.target.closest(".comment-item");
+        comment.remove();
+      }
+    });
+
+    // Agregar comentario dinámicamente
+    function submitComment() {
+      const name = document.getElementById("comment-name").value;
+      const rating = document.getElementById("comment-rating").value;
+      const text = document.getElementById("comment-text").value;
+
+      const commentContainer = document.getElementById("comments-container");
+
+      const commentItem = document.createElement("div");
+      commentItem.classList.add("comment-item", "card", "shadow-sm", "p-3", "mb-3", "border-0");
+
+      commentItem.innerHTML = `
+        <div>
+          <h6 class="mb-1 fw-bold">${name}</h6>
+          <p class="mb-1 text-muted">${"⭐".repeat(rating)}</p>
+          <p class="mb-0">${text}</p>
+        </div>
+        <div class="text-end mt-2">
+          <button class="btn btn-sm btn-outline-danger btn-delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      `;
+
+      commentContainer.appendChild(commentItem);
+
+      document.getElementById("comment-form").reset();
+    }
+
+    document.getElementById("comments-container").addEventListener("click", function(e) {
+  if (e.target.closest(".btn-delete")) {
+    const comment = e.target.closest(".comment-item");
+    comment.remove();
+  }
+});
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Formación - Repositorio SENA</title>
+    
+    <!-- Favicons -->
+    <link href="{{ url_for('static', filename='img/logoSena.png') }}" rel="icon">
+    <link href="{{ url_for('static', filename='img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+
+    <!-- Vendor CSS Files -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/aos/aos.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+</head>
+<body>
+<header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
+        <a href="{{ url_for('index') }}" class="logo d-flex align-items-center me-auto me-xl-0">
+            <h1 class="sitename" style="color: #ffffff;">Repositorio SENA</h1>
+        </a>
+        <nav id="navmenu" class="navmenu">
+            <ul class="gap-1">
+                <li><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li><a href="{{ url_for('comunidad') }}">Comunidad</a></li> 
+                {% if usuario['rol_id'] == 3 %}
+                <li><a href="{{ url_for('estadisticas') }}">Estadísticas</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('top_usuarios') }}">Top</a></li>
+                <li><a href="{{ url_for('reportes') }}">Reportes</a></li>
+                <li><a href="{{ url_for('equipo') }}">Equipo</a></li>
+                <li class="dropdown"><a href="#"><span>Gestión</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                    <ul>
+                        <li><a href="{{ url_for('almacenamiento') }}" class="active">Almacenamiento</a></li>
+                        <li><a href="{{ url_for('consulta') }}">Consultar</a></li>
+
+                    </ul>
+                </li>
+                <li><a href="{{ url_for('contacto') }}">Contacto</a></li>
+            </ul>
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+<!--imagenes-->
+<div class="profile-menu-wrapper position-relative">
+  <img src="{% if usuario and usuario['foto_perfil'] %}{{ usuario['foto_perfil'] }}{% else %}{{ url_for('static', filename='img/default-profile.png') }}{% endif %}"
+       alt="Perfil"
+       class="profile-img"
+       id="profileToggle"
+       style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer;">
+
+  <div id="profileMenu" class="profile-menu d-none">
+    <ul class="list-unstyled m-0">
+      <li><a href="{{ url_for('perfil') }}">Mi perfil</a></li>
+      <li><a href="{{ url_for('configuracion') }}">Configuración</a></li>
+      <li><a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+      {% if usuario['rol_id'] == 3 %}
+        <li><a href="{{ url_for('asignar') }}">Asignar roles</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div> 
+<!--fin imagenes-->
+</header>
+
+<main id="main" class="main-page">
+    <div class="container py-5 pt-5 mt-4">
+  
+      <!-- TÍTULO -->
+      <h1 class="text-center mb-5 pt-4">Clasificación de Proyectos de Formación</h1>
+  
+      <!-- BOTÓN AGREGAR PROYECTO -->
+      <div class="d-flex justify-content-center mb-4">
+        <a href="{{ url_for('subir_proyecto') }}" class="btn btn-success btn-lg px-4 py-2 d-flex align-items-center gap-2 shadow rounded-pill">
+          <i class="bi bi-plus-circle-fill fs-4"></i>
+          <span class="fw-semibold fs-5">Agregar Proyecto</span>
+        </a>
+      </div>
+  
+      <!-- TABLA DE PROYECTOS -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title mb-0">Listado de Proyectos</h5>
+            <div class="d-flex align-items-center gap-2">
+              <label for="filtroCategoria" class="fw-semibold me-2 mb-0">Filtrar por categoria:</label>
+              <select id="filtroCategoria" class="form-select" style="max-width: 200px;">
+                <option value="todos">Todos</option>
+                <option value="Formacion" selected>Formacion</option>
+                <option value="Investigacion">Investigacion</option>
+                <option value="Emprendimiento">Emprendimiento</option>
+                <option value="Software">Software</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th>Título</th>
+                  <th>Autores</th>
+                  <th>Categorías</th>
+                  <th>Competencias</th>
+                  <th>Fecha Subida</th>
+                  <th>Fecha Finalización</th>
+                  <th>Estados</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for proyecto in documentos %}
+                <tr data-categorias="{{ proyecto.categorias|lower|replace(', ', ';')|replace(',', ';') }}">
+                  <td>{{ proyecto.titulo }}</td>
+                  <td>{{ proyecto.autores or 'N/A' }}</td>
+                  <td>{{ proyecto.categorias or 'N/A' }}</td>
+                  <td>{{ proyecto.competencias or 'N/A' }}</td>
+                  <td>{{ proyecto.fecha_subida or 'N/A' }}</td>
+                  <td>{{ proyecto.fecha_finalizacion or 'N/A' }}</td>
+                  <td>{{ proyecto.estado or 'N/A' }}</td>
+                  <td class="d-flex flex-wrap gap-2">
+                    <!-- Ver -->
+                    <a href="{{ url_for('ver_proyecto', proyecto_id=proyecto.id) }}" 
+                       class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center" 
+                       title="Ver">
+                      <i class="bi bi-eye fs-20"></i>
+                    </a>
+                  
+                    <!-- Modificar -->
+                    <a href="{{ url_for('modificar', id=proyecto.id) }}"
+                       class="btn btn-sm btn-outline-warning d-flex align-items-center justify-content-center" 
+                       title="Modificar">
+                      <i class="bi bi-pencil-square fs-20"></i>
+                    </a>
+                  
+                    {% if usuario['rol_id'] == 3 %}
+                    <!-- Descargar -->
+                    <a href="{{ url_for('ver_pdf', id=proyecto.id) }}" 
+                       class="btn btn-sm btn-outline-success d-flex align-items-center justify-content-center" 
+                       title="Descargar">
+                      <i class="bi bi-download fs-20"></i>
+                    </a>
+                  
+                    <!-- Eliminar -->
+                    <form action="{{ url_for('eliminar_proyecto', proyecto_id=proyecto.id) }}" 
+                          method="POST" 
+                          onsubmit="return confirm('¿Estás seguro de eliminar este proyecto?')" 
+                          style="display:inline;">
+                      <button type="submit" 
+                              class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" 
+                              title="Eliminar">
+                        <i class="bi bi-trash fs-20"></i>
+                      </button>
+                    </form>
+                    {% endif %}
+                  </td>                  
+                </tr>
+                {% endfor %}
+                {% if documentos|length == 0 %}
+                <tr>
+                  <td colspan="7" class="text-center text-muted">No hay proyectos disponibles.</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>
+    document.getElementById("filtroCategoria").addEventListener("change", function () {
+      const filtro = this.value;
+      const filas = document.querySelectorAll("tbody tr");
+  
+      filas.forEach(fila => {
+        const categoriasAttr = fila.getAttribute("data-categorias") || "";
+        const categorias = categoriasAttr.split(";").map(cat => cat.trim());
+  
+        if (filtro === "todos" || categorias.includes(filtro)) {
+          fila.style.display = "";
+        } else {
+          fila.style.display = "none";
+        }
+      });
+    });
+  </script>
+  
+  <script>
+// 🔹 Script para cargar SOLO proyectos de "formacion" al iniciar
+document.addEventListener("DOMContentLoaded", function () {
+  const filas = document.querySelectorAll("tbody tr");
+  const filtro = "formacion"; // categoría inicial (minúsculas)
+
+  filas.forEach(fila => {
+    const categoriasAttr = fila.getAttribute("data-categorias") || "";
+    const categorias = categoriasAttr.split(";").map(cat => cat.trim().toLowerCase());
+
+    if (categorias.includes(filtro)) {
+      fila.style.display = "";
+    } else {
+      fila.style.display = "none";
+    }
+  });
+});
+
+// 🔹 Script para cambiar categorías desde el select
+document.getElementById("filtroCategoria").addEventListener("change", function () {
+  const filtro = this.value.toLowerCase(); // pasamos a minúsculas
+  const filas = document.querySelectorAll("tbody tr");
+
+  filas.forEach(fila => {
+    const categoriasAttr = fila.getAttribute("data-categorias") || "";
+    const categorias = categoriasAttr.split(";").map(cat => cat.trim().toLowerCase());
+
+    if (filtro === "todos" || categorias.includes(filtro)) {
+      fila.style.display = "";
+    } else {
+      fila.style.display = "none";
+    }
+  });
+});
+</script>
+
+  
+</body>
+</html>
